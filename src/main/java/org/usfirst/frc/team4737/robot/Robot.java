@@ -92,7 +92,10 @@ public class Robot extends IterativeRobot {
         Log.info("Running " + VERSION);
         instance = this;
 
+        // ################
         // Initialize input
+        // ################
+
         Log.info("Initializing input..");
 
         if (DriverStation.getInstance().getStickAxisCount(0) == 6) {
@@ -104,7 +107,10 @@ public class Robot extends IterativeRobot {
         }
 
 
+        // ###################
         // Initialize hardware
+        // ###################
+
         Log.info("Initializing hardware..");
 
         pdp = new PowerDistributionPanel();
@@ -116,11 +122,17 @@ public class Robot extends IterativeRobot {
 
         dscamera = new AxisCamera("10.47.37.11");
         dscamera.writeResolution(AxisCamera.Resolution.k320x240);
+        dscamera.writeCompression(30);
 
 //        proximityUDS_RL = new AnalogInput(0);
 //        proximityUDS_RR = new AnalogInput(1);
 
+        // TODO init encoders
+
+        // ####################
         // Initialize actuators
+        // ####################
+
         Log.info("Initializing actuators..");
 
         // TODO init talons
@@ -140,7 +152,10 @@ public class Robot extends IterativeRobot {
         });
         // autonomousController is initialized in autonomousInit()
 
+        // ###############################
         // Initialize SmartDashboard items
+        // ###############################
+
         Log.info("Creating SmartDashboard..");
 
         autonomousChooser = new SendableChooser();
@@ -151,14 +166,15 @@ public class Robot extends IterativeRobot {
         }
         SmartDashboard.putData("Autonomous Strategy", autonomousChooser);
 
-        // TODO add more dashboard items
-
         Log.info("Robot init complete!");
     }
 
     public void resetSystems() {
         // Reset all components to a safe, idle state.
 
+    }
+
+    public void commonPeriodic() {
     }
 
     @Override
@@ -191,6 +207,7 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void autonomousPeriodic() {
+        commonPeriodic();
     }
 
     @Override
@@ -199,11 +216,7 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void teleopPeriodic() {
-        // Display camera to driver station
-
-        NIVision.Image image = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
-        dscamera.getImage(image);
-        CameraServer.getInstance().setImage(image);
+        commonPeriodic();
     }
 
     /**
@@ -215,6 +228,7 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void disabledPeriodic() {
+        commonPeriodic();
     }
 
     @Override
@@ -223,6 +237,7 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void testPeriodic() {
+        commonPeriodic();
     }
 
 }

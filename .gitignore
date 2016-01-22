@@ -1,3 +1,8 @@
 build/
 .gradle/
 GradleRIO.iws
+.gradle/2.2.1/taskArtifacts/taskArtifacts.bin
+.gradle/2.2.1/taskArtifacts/fileSnapshots.bin
+.gradle/2.2.1/taskArtifacts/fileHashes.bin
+.gradle/2.2.1/taskArtifacts/cache.properties.lock
+GradleRIO.iws
