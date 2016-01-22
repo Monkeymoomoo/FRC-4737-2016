@@ -41,5 +41,5 @@ task genJavadoc(type: Jar, dependsOn: javadoc) {
 }
 
 artifacts {
-  archives genJavadoc
+//  archives genJavadoc
 }

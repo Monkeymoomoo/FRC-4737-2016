@@ -1,10 +1,13 @@
 package org.usfirst.frc.team4737.robot;
 
+import com.ni.vision.NIVision;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.image.NIVisionException;
 import edu.wpi.first.wpilibj.smartdashboard.*;
-import edu.wpi.first.wpilibj.vision.USBCamera;
+import edu.wpi.first.wpilibj.vision.*;
 import org.usfirst.frc.team4624.robot.input.XboxController;
 import org.usfirst.frc.team4737.robot.auton.AutonTaskOrganizer;
+import org.usfirst.frc.team4737.robot.drive.DriveControl;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
@@ -65,7 +68,7 @@ public class Robot extends IterativeRobot {
 
     // Sensors
 
-    private USBCamera ps3eye;
+    private AxisCamera dscamera;
     private AnalogInput proximityUDS_RL;
     private AnalogInput proximityUDS_RR;
 
@@ -78,6 +81,7 @@ public class Robot extends IterativeRobot {
 
     // Robot controllers
 
+    private DriveControl driveControl;
     private AutonTaskOrganizer autonomousProgram;
 
     /**
@@ -110,13 +114,16 @@ public class Robot extends IterativeRobot {
         // Initialize sensors
         Log.info("Initializing sensors..");
 
-//        ps3eye = new USBCamera("video0");
+        dscamera = new AxisCamera("10.47.37.11");
+        dscamera.writeResolution(AxisCamera.Resolution.k320x240);
+
 //        proximityUDS_RL = new AnalogInput(0);
 //        proximityUDS_RR = new AnalogInput(1);
 
         // Initialize actuators
         Log.info("Initializing actuators..");
 
+        // TODO init talons
 //        frontLeftTalon = new CANTalon(10);
 //        frontRightTalon = new CANTalon(11);
 //        rearLeftTalon = new CANTalon(12);
@@ -125,8 +132,13 @@ public class Robot extends IterativeRobot {
         // Initialize robot controllers
         Log.info("Creating robot controllers..");
 
+        driveControl = new DriveControl(new CANTalon[]{
+                frontLeftTalon, frontRightTalon,
+                rearLeftTalon, rearRightTalon
+        }, new Encoder[]{
+                // TODO list encoders
+        });
         // autonomousController is initialized in autonomousInit()
-
 
         // Initialize SmartDashboard items
         Log.info("Creating SmartDashboard..");
@@ -138,6 +150,8 @@ public class Robot extends IterativeRobot {
             autonomousChooser.addObject(strategies[i].name, strategies[i]);
         }
         SmartDashboard.putData("Autonomous Strategy", autonomousChooser);
+
+        // TODO add more dashboard items
 
         Log.info("Robot init complete!");
     }
@@ -185,6 +199,11 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void teleopPeriodic() {
+        // Display camera to driver station
+
+        NIVision.Image image = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+        dscamera.getImage(image);
+        CameraServer.getInstance().setImage(image);
     }
 
     /**
