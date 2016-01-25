@@ -61,6 +61,7 @@ public class Robot extends IterativeRobot {
 
     // Input devices
 
+    // TODO determine if we're using an Xbox controller
     private XboxController controller;
     private Joystick joystick;
 
@@ -70,6 +71,11 @@ public class Robot extends IterativeRobot {
     private AnalogInput proximityUDS_RL;
     private AnalogInput proximityUDS_RR;
     private BuiltInAccelerometer builtInAccelerometer;
+
+    private Encoder frontLeftEncoder;
+    private Encoder frontRightEncoder;
+    private Encoder rearLeftEncoder;
+    private Encoder rearRightEncoder;
 
     // Motors
 
@@ -125,6 +131,10 @@ public class Robot extends IterativeRobot {
         builtInAccelerometer = new BuiltInAccelerometer();
 
         // TODO init encoders
+//        frontLeftEncoder = new Encoder(a, b, index?, reverse);
+//        frontRightEncoder = new Encoder(a, b, index?, reverse);
+//        rearLeftEncoder = new Encoder(a, b, index?, reverse);
+//        rearRightEncoder = new Encoder(a, b, index?, reverse);
 
         // ############################################################################
         // Initialize motors/pneumatics
@@ -147,13 +157,13 @@ public class Robot extends IterativeRobot {
 
         Log.info("Creating robot controllers..");
 
-        driveControl = new DriveControl(new CANTalon[]{
+        driveControl = new DriveControl(
                 frontLeftTalon, frontRightTalon,
-                rearLeftTalon, rearRightTalon
-        }, new Encoder[]{
-                // TODO list encoders
-        });
-        // autonomousController is initialized in autonomousInit()
+                rearLeftTalon, rearRightTalon,
+                frontLeftEncoder, frontRightEncoder,
+                rearLeftEncoder, rearRightEncoder);
+
+        //) autonomousController is initialized in autonomousInit()
 
         // ############################################################################
         // Initialize SmartDashboard items
@@ -190,6 +200,7 @@ public class Robot extends IterativeRobot {
 
     /**
      * Execute any functions that should be running whenever the robot is supplied power, and not emergency stopped.
+     * This is called at the end of any other periodic function, giving them priority.
      */
     public void commonPeriodic() {
     }
@@ -234,6 +245,11 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void teleopPeriodic() {
+        // Arcade drive using Xbox controller
+        // Steer w/ L thumbstick
+        // Throttle with triggers
+        driveControl.arcadeControl(controller.leftStick.getX(), controller.rt.getY() - controller.lt.getY());
+
         commonPeriodic();
     }
 
