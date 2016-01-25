@@ -3,11 +3,14 @@ package org.usfirst.frc.team4737.robot;
 import com.ni.vision.NIVision;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.image.NIVisionException;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj.vision.*;
 import org.usfirst.frc.team4624.robot.input.XboxController;
 import org.usfirst.frc.team4737.robot.auton.AutonTaskOrganizer;
 import org.usfirst.frc.team4737.robot.drive.DriveControl;
+
+import java.io.BufferedReader;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
@@ -61,23 +64,23 @@ public class Robot extends IterativeRobot {
     private XboxController controller;
     private Joystick joystick;
 
-    // Control Electronics
-
-    private PowerDistributionPanel pdp;
-    private Compressor compressor;
-
     // Sensors
 
     private AxisCamera dscamera;
     private AnalogInput proximityUDS_RL;
     private AnalogInput proximityUDS_RR;
+    private BuiltInAccelerometer builtInAccelerometer;
 
-    // Actuators
+    // Motors
 
     private CANTalon frontLeftTalon;
     private CANTalon frontRightTalon;
     private CANTalon rearLeftTalon;
     private CANTalon rearRightTalon;
+
+    // Pneumatics
+
+    private Compressor compressor;
 
     // Robot controllers
 
@@ -92,9 +95,9 @@ public class Robot extends IterativeRobot {
         Log.info("Running " + VERSION);
         instance = this;
 
-        // ################
+        // ############################################################################
         // Initialize input
-        // ################
+        // ############################################################################
 
         Log.info("Initializing input..");
 
@@ -106,18 +109,10 @@ public class Robot extends IterativeRobot {
             joystick = new Joystick(0);
         }
 
-
-        // ###################
-        // Initialize hardware
-        // ###################
-
-        Log.info("Initializing hardware..");
-
-        pdp = new PowerDistributionPanel();
-        compressor = new Compressor(0);
-        compressor.start();
-
+        // ############################################################################
         // Initialize sensors
+        // ############################################################################
+
         Log.info("Initializing sensors..");
 
         dscamera = new AxisCamera("10.47.37.11");
@@ -127,11 +122,13 @@ public class Robot extends IterativeRobot {
 //        proximityUDS_RL = new AnalogInput(0);
 //        proximityUDS_RR = new AnalogInput(1);
 
+        builtInAccelerometer = new BuiltInAccelerometer();
+
         // TODO init encoders
 
-        // ####################
-        // Initialize actuators
-        // ####################
+        // ############################################################################
+        // Initialize motors/pneumatics
+        // ############################################################################
 
         Log.info("Initializing actuators..");
 
@@ -141,7 +138,13 @@ public class Robot extends IterativeRobot {
 //        rearLeftTalon = new CANTalon(12);
 //        rearRightTalon = new CANTalon(13);
 
+        compressor = new Compressor(0);
+        compressor.start();
+
+        // ############################################################################
         // Initialize robot controllers
+        // ############################################################################
+
         Log.info("Creating robot controllers..");
 
         driveControl = new DriveControl(new CANTalon[]{
@@ -152,9 +155,9 @@ public class Robot extends IterativeRobot {
         });
         // autonomousController is initialized in autonomousInit()
 
-        // ###############################
+        // ############################################################################
         // Initialize SmartDashboard items
-        // ###############################
+        // ############################################################################
 
         Log.info("Creating SmartDashboard..");
 
@@ -166,19 +169,34 @@ public class Robot extends IterativeRobot {
         }
         SmartDashboard.putData("Autonomous Strategy", autonomousChooser);
 
+        // ############################################################################
+
         Log.info("Robot init complete!");
     }
 
-    public void resetSystems() {
+    /**
+     * Calmly brings all active mechanical systems to a state where the robot is likely to cause no harm.
+     * This disables drive systems, shooters, and anything creating major mechanical motion.
+     */
+    public void idleSystems() {
         // Reset all components to a safe, idle state.
-
+        // - Idle drive motors
+        // - Idle all shooter motors
+        // - Leave compressor alone
+        // TODO
+//        driveControl.enterSafeState();
+//        shooterControl.enterSafeState();
     }
 
+    /**
+     * Execute any functions that should be running whenever the robot is supplied power, and not emergency stopped.
+     */
     public void commonPeriodic() {
     }
 
     @Override
     public void autonomousInit() {
+        // TODO rework how auton strategies are done
         AutonStrategy strategy = (AutonStrategy) autonomousChooser.getSelected();
         switch (strategy) {
             case NONE:

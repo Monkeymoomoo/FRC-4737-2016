@@ -48,7 +48,7 @@ public class AutonTaskOrganizer {
     public void reportFailure() {
         // Stop everything and reset all systems to a safe idling state
         stopped = true;
-        Robot.instance.resetSystems();
+        Robot.instance.idleSystems();
     }
 
 }
