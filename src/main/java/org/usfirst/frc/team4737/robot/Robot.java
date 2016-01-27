@@ -1,16 +1,11 @@
 package org.usfirst.frc.team4737.robot;
 
-import com.ni.vision.NIVision;
 import edu.wpi.first.wpilibj.*;
-import edu.wpi.first.wpilibj.image.NIVisionException;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj.vision.*;
 import org.usfirst.frc.team4624.robot.input.XboxController;
 import org.usfirst.frc.team4737.robot.auton.AutonTaskOrganizer;
 import org.usfirst.frc.team4737.robot.drive.DriveControl;
-
-import java.io.BufferedReader;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
@@ -28,15 +23,15 @@ public class Robot extends IterativeRobot {
 
     // Version numbering
 
-    public static final String NAME = "Piece of shit robot";
+    public static final String NAME = "DJ";
     public static final int MAJOR = 1;
     public static final int MINOR = 0;
-    public static final int UPDATE = 1;
+    public static final int UPDATE = 5;
     public static final String VERSION = NAME + " " + MAJOR + "." + MINOR + "." + UPDATE;
 
     // Enumerations
 
-    private enum AutonStrategy {
+    private enum Obstacle {
         NONE("None"),
         PORTCULLIS("Portcullis"),
         CHEVAL_DE_FRISE("Cheval de Frise"),
@@ -50,7 +45,7 @@ public class Robot extends IterativeRobot {
 
         public final String name;
 
-        AutonStrategy(String name) {
+        Obstacle(String name) {
             this.name = name;
         }
     }
@@ -172,7 +167,7 @@ public class Robot extends IterativeRobot {
         Log.info("Creating SmartDashboard..");
 
         autonomousChooser = new SendableChooser();
-        AutonStrategy[] strategies = AutonStrategy.values();
+        Obstacle[] strategies = Obstacle.values();
         autonomousChooser.addDefault(strategies[0].name, strategies[0]);
         for (int i = 1; i < strategies.length; i++) {
             autonomousChooser.addObject(strategies[i].name, strategies[i]);
@@ -208,7 +203,7 @@ public class Robot extends IterativeRobot {
     @Override
     public void autonomousInit() {
         // TODO rework how auton strategies are done
-        AutonStrategy strategy = (AutonStrategy) autonomousChooser.getSelected();
+        Obstacle strategy = (Obstacle) autonomousChooser.getSelected();
         switch (strategy) {
             case NONE:
                 autonomousProgram = new AutonTaskOrganizer();
