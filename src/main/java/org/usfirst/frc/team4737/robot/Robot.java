@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.vision.*;
 import org.usfirst.frc.team4624.robot.input.XboxController;
 import org.usfirst.frc.team4737.robot.auton.AutonTaskOrganizer;
 import org.usfirst.frc.team4737.robot.drive.DriveControl;
+import com.kauailabs.navx.frc.AHRS;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
@@ -63,25 +64,25 @@ public class Robot extends IterativeRobot {
     // Sensors
 
     private AxisCamera dscamera;
-    private AnalogInput proximityUDS_RL;
-    private AnalogInput proximityUDS_RR;
     private BuiltInAccelerometer builtInAccelerometer;
+    private ADXRS450_Gyro gyro;
+    private AHRS navXSensor;
 
-    private Encoder frontLeftEncoder;
-    private Encoder frontRightEncoder;
-    private Encoder rearLeftEncoder;
-    private Encoder rearRightEncoder;
-
-    // Motors
+    // Talons
 
     private CANTalon frontLeftTalon;
     private CANTalon frontRightTalon;
     private CANTalon rearLeftTalon;
     private CANTalon rearRightTalon;
 
+    private CANTalon chamberLeftTalon;
+    private CANTalon chamberRightTalon;
+    private CANTalon shooterLeftTalon;
+    private CANTalon shooterRightTalon;
+
     // Pneumatics
 
-    private Compressor compressor;
+//    private Compressor compressor;
 
     // Robot controllers
 
@@ -120,16 +121,11 @@ public class Robot extends IterativeRobot {
         dscamera.writeResolution(AxisCamera.Resolution.k320x240);
         dscamera.writeCompression(30);
 
-//        proximityUDS_RL = new AnalogInput(0);
-//        proximityUDS_RR = new AnalogInput(1);
-
         builtInAccelerometer = new BuiltInAccelerometer();
 
-        // TODO init encoders
-//        frontLeftEncoder = new Encoder(a, b, index?, reverse);
-//        frontRightEncoder = new Encoder(a, b, index?, reverse);
-//        rearLeftEncoder = new Encoder(a, b, index?, reverse);
-//        rearRightEncoder = new Encoder(a, b, index?, reverse);
+        gyro = new ADXRS450_Gyro();
+
+        navXSensor = new AHRS(SPI.Port.kMXP);
 
         // ############################################################################
         // Initialize motors/pneumatics
@@ -137,14 +133,15 @@ public class Robot extends IterativeRobot {
 
         Log.info("Initializing actuators..");
 
-        // TODO init talons
-//        frontLeftTalon = new CANTalon(10);
-//        frontRightTalon = new CANTalon(11);
-//        rearLeftTalon = new CANTalon(12);
-//        rearRightTalon = new CANTalon(13);
+        frontLeftTalon = new CANTalon(10);
+        frontRightTalon = new CANTalon(11);
+        rearLeftTalon = new CANTalon(12);
+        rearRightTalon = new CANTalon(13);
+        frontRightTalon.reverseOutput(true);
+        rearRightTalon.reverseOutput(true);
 
-        compressor = new Compressor(0);
-        compressor.start();
+//        compressor = new Compressor(0);
+//        compressor.start();
 
         // ############################################################################
         // Initialize robot controllers
@@ -154,9 +151,7 @@ public class Robot extends IterativeRobot {
 
         driveControl = new DriveControl(
                 frontLeftTalon, frontRightTalon,
-                rearLeftTalon, rearRightTalon,
-                frontLeftEncoder, frontRightEncoder,
-                rearLeftEncoder, rearRightEncoder);
+                rearLeftTalon, rearRightTalon);
 
         //) autonomousController is initialized in autonomousInit()
 
@@ -189,7 +184,7 @@ public class Robot extends IterativeRobot {
         // - Idle all shooter motors
         // - Leave compressor alone
         // TODO
-//        driveControl.enterSafeState();
+        driveControl.enterSafeState();
 //        shooterControl.enterSafeState();
     }
 
@@ -243,7 +238,7 @@ public class Robot extends IterativeRobot {
         // Arcade drive using Xbox controller
         // Steer w/ L thumbstick
         // Throttle with triggers
-        driveControl.arcadeControl(controller.leftStick.getX(), controller.rt.getY() - controller.lt.getY());
+        driveControl.arcadeControl(controller.leftStick.getX(), controller.rt.getY() - controller.lt.getY(), true);
 
         commonPeriodic();
     }
