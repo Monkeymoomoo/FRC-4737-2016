@@ -151,6 +151,8 @@ public class Robot extends IterativeRobot {
         chamberRightTalon = new CANTalon(17);
         shooterLeftTalon = new CANTalon(18);
         shooterRightTalon = new CANTalon(19);
+        chamberRightTalon.reverseOutput(true);
+        shooterRightTalon.reverseOutput(true);
 
 //        compressor = new Compressor(0);
 //        compressor.start();
@@ -257,6 +259,23 @@ public class Robot extends IterativeRobot {
         // Steer w/ L thumbstick
         // Throttle with triggers
         driveControl.arcadeControl(controller.leftStick.getX(), controller.rt.getY() - controller.lt.getY(), true);
+
+        // Shooter control
+        // Down: intake both rollers
+        // Up: Accelerate shooters
+        // RB: Shoot ball
+        if (controller.dPad.down.get()) {
+            shootControl.intake();
+        } else if (controller.dPad.left.get()) {
+            shootControl.dropBall();
+        } else {
+            if (controller.dPad.up.get()) {
+                shootControl.spinupShooter();
+            }
+            if (controller.rb.get()) {
+                shootControl.releaseChamber();
+            }
+        }
 
         commonPeriodic();
     }
