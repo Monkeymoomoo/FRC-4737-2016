@@ -1,19 +1,20 @@
 /**
-Template file for classes using GradleRIO
-@author Jaci
-*/
+ Template file for classes using GradleRIO
+ @author Jaci
+ */
 
 buildscript {
-  repositories {
-	mavenCentral()
-	maven {
-		name = "GradleRIO"
-		url = "http://dev.imjac.in/maven"
-	}
-  }
-  dependencies {
-    classpath group: 'jaci.openrio.gradle', name: 'GradleRIO', version: '+'			//Change this line if you wish to Update GradleRIO
-  }
+    repositories {
+        mavenCentral()
+        maven {
+            name = "GradleRIO"
+            url = "http://dev.imjac.in/maven"
+        }
+    }
+    dependencies {
+        classpath group: 'jaci.openrio.gradle', name: 'GradleRIO', version: '+' //Change this line if you wish to Update GradleRIO
+        compile fileTree(dir: 'libs', include: '*.jar')
+    }
 }
 
 apply plugin: 'java'
@@ -26,18 +27,18 @@ gradlerio.team = "4737"                                   //Your FRC team number
 gradlerio.rioIP = "10.47.37.20"                         //Uncomment to specify the IP address of the RIO
 
 def robotManifest = {
-  attributes 'Main-Class': 'edu.wpi.first.wpilibj.RobotBase'
-  attributes 'Robot-Class': gradlerio.robotClass
+    attributes 'Main-Class': 'edu.wpi.first.wpilibj.RobotBase'
+    attributes 'Robot-Class': gradlerio.robotClass
 }
 
 jar {
-  from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-  manifest robotManifest
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    manifest robotManifest
 }
 
 task genJavadoc(type: Jar, dependsOn: javadoc) {
-  classifier = 'javadoc'
-  from javadoc.destinationDir
+    classifier = 'javadoc'
+    from javadoc.destinationDir
 }
 
 artifacts {
