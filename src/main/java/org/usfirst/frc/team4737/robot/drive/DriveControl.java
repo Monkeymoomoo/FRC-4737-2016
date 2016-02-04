@@ -3,10 +3,13 @@ package org.usfirst.frc.team4737.robot.drive;
 import edu.wpi.first.wpilibj.*;
 
 /**
+ * A drive controller for handling tank and arcade control.
+ * Also serves as a PIDOutput for basic forward driving control.
+ *
  * @author Brian Semrau
  * @version 1/11/2016
  */
-public class DriveControl {
+public class DriveControl implements PIDOutput {
 
     /**
      * The weight of the x-axis in arcade drive calculations.
@@ -82,6 +85,11 @@ public class DriveControl {
     public void enterSafeState() {
         for (CANTalon talon : talons)
             talon.set(0);
+    }
+
+    @Override
+    public void pidWrite(double output) {
+        tankControl(output, output, false);
     }
 
 }

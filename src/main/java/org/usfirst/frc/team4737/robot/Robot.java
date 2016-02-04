@@ -7,6 +7,7 @@ import org.usfirst.frc.team4624.robot.input.XboxController;
 import org.usfirst.frc.team4737.robot.auton.AutonTaskOrganizer;
 import org.usfirst.frc.team4737.robot.drive.DriveControl;
 import com.kauailabs.navx.frc.AHRS;
+import org.usfirst.frc.team4737.robot.shooter.ShooterControl;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
@@ -63,15 +64,17 @@ public class Robot extends IterativeRobot {
 
     // Sensors
 
-    private AxisCamera dscamera;
-    private BuiltInAccelerometer builtInAccelerometer;
-    private ADXRS450_Gyro gyro;
-    private AHRS navXSensor;
+    public AxisCamera dscamera;
+    public BuiltInAccelerometer builtInAccelerometer;
+    public ADXRS450_Gyro gyro;
+    public AHRS navXSensor;
 
     // Talons
 
     private CANTalon frontLeftTalon;
     private CANTalon frontRightTalon;
+    private CANTalon midLeftTalon;
+    private CANTalon midRightTalon;
     private CANTalon rearLeftTalon;
     private CANTalon rearRightTalon;
 
@@ -86,7 +89,8 @@ public class Robot extends IterativeRobot {
 
     // Robot controllers
 
-    private DriveControl driveControl;
+    public DriveControl driveControl;
+    public ShooterControl shootControl;
     private AutonTaskOrganizer autonomousProgram;
 
     /**
@@ -135,10 +139,18 @@ public class Robot extends IterativeRobot {
 
         frontLeftTalon = new CANTalon(10);
         frontRightTalon = new CANTalon(11);
-        rearLeftTalon = new CANTalon(12);
-        rearRightTalon = new CANTalon(13);
+        midLeftTalon = new CANTalon(12);
+        midRightTalon = new CANTalon(13);
+        rearLeftTalon = new CANTalon(14);
+        rearRightTalon = new CANTalon(15);
         frontRightTalon.reverseOutput(true);
+        midRightTalon.reverseOutput(true);
         rearRightTalon.reverseOutput(true);
+
+        chamberLeftTalon = new CANTalon(16);
+        chamberRightTalon = new CANTalon(17);
+        shooterLeftTalon = new CANTalon(18);
+        shooterRightTalon = new CANTalon(19);
 
 //        compressor = new Compressor(0);
 //        compressor.start();
@@ -152,6 +164,10 @@ public class Robot extends IterativeRobot {
         driveControl = new DriveControl(
                 frontLeftTalon, frontRightTalon,
                 rearLeftTalon, rearRightTalon);
+
+        shootControl = new ShooterControl(
+                chamberLeftTalon, chamberRightTalon,
+                shooterLeftTalon, shooterRightTalon);
 
         //) autonomousController is initialized in autonomousInit()
 
@@ -226,6 +242,8 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void autonomousPeriodic() {
+        autonomousProgram.periodic();
+
         commonPeriodic();
     }
 
