@@ -20,6 +20,8 @@ public class DriveControl implements PIDOutput {
 
     private CANTalon[] talons;
 
+    private boolean updated;
+
     public DriveControl(CANTalon fl, CANTalon fr, CANTalon rl, CANTalon rr) {
         // FL : 0
         // FR : 1
@@ -28,7 +30,13 @@ public class DriveControl implements PIDOutput {
         talons = new CANTalon[]{
                 fl, fr, rl, rr
         };
+    }
 
+    public void periodic() {
+        if (!updated) {
+            enterSafeState();
+        }
+        updated = false;
     }
 
     public void tankControl(double left, double right, boolean squareInput) {
@@ -46,6 +54,8 @@ public class DriveControl implements PIDOutput {
         talons[1].set(right);
         talons[2].set(left);
         talons[3].set(right);
+
+        updated = true;
     }
 
     public void arcadeControl(double xAxis, double yAxis, boolean squareInput) {

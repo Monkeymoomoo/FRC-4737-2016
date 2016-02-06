@@ -19,7 +19,8 @@ public abstract class AutonTask {
     }
 
     public final void reportFailure() {
-        organizer.reportFailure();
+        if (organizer != null)
+            organizer.reportFailure();
     }
 
     public final String name() {

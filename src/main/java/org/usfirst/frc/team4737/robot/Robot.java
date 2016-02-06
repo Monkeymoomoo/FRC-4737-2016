@@ -203,6 +203,7 @@ public class Robot extends IterativeRobot {
      * This is called at the end of any other periodic function, giving them priority.
      */
     public void commonPeriodic() {
+        driveControl.periodic();
         shootControl.periodic();
     }
 
@@ -253,7 +254,7 @@ public class Robot extends IterativeRobot {
         // Throttle with triggers
         driveControl.arcadeControl(controller.leftStick.getX(), controller.rt.getY() - controller.lt.getY(), true);
 
-        // Shooter control
+        // Shooter control TODO utilize an autonomous task
         // Down: intake both rollers
         // Up: Accelerate shooters
         // RB: Shoot ball
