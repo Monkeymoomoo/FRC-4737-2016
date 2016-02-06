@@ -13,7 +13,6 @@ buildscript {
     }
     dependencies {
         classpath group: 'jaci.openrio.gradle', name: 'GradleRIO', version: '+' //Change this line if you wish to Update GradleRIO
-        compile fileTree(dir: 'libs', include: '*.jar')
     }
 }
 
@@ -29,6 +28,10 @@ gradlerio.rioIP = "10.47.37.20"                         //Uncomment to specify t
 def robotManifest = {
     attributes 'Main-Class': 'edu.wpi.first.wpilibj.RobotBase'
     attributes 'Robot-Class': gradlerio.robotClass
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 jar {
