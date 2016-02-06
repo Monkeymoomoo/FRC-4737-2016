@@ -1,12 +1,12 @@
 package org.usfirst.frc.team4737.robot;
 
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj.vision.*;
 import org.usfirst.frc.team4624.robot.input.XboxController;
 import org.usfirst.frc.team4737.robot.auton.AutonTaskOrganizer;
 import org.usfirst.frc.team4737.robot.drive.DriveControl;
-import com.kauailabs.navx.frc.AHRS;
 import org.usfirst.frc.team4737.robot.shooter.ShooterControl;
 
 /**
@@ -25,11 +25,7 @@ public class Robot extends IterativeRobot {
 
     // Version numbering
 
-    public static final String NAME = "DJ";
-    public static final int MAJOR = 1;
-    public static final int MINOR = 0;
-    public static final int UPDATE = 5;
-    public static final String VERSION = NAME + " " + MAJOR + "." + MINOR + "." + UPDATE;
+    public static final String ROBOT_NAME = "Scorpio";
 
     // Enumerations
 
@@ -78,10 +74,10 @@ public class Robot extends IterativeRobot {
     private CANTalon rearLeftTalon;
     private CANTalon rearRightTalon;
 
-    private CANTalon chamberLeftTalon;
-    private CANTalon chamberRightTalon;
-    private CANTalon shooterLeftTalon;
-    private CANTalon shooterRightTalon;
+    private CANTalon chamberLeftTalon;  // A
+    private CANTalon chamberRightTalon; // B
+    private CANTalon shooterLeftTalon;  // C
+    private CANTalon shooterRightTalon; // D
 
     // Pneumatics
 
@@ -98,7 +94,7 @@ public class Robot extends IterativeRobot {
      */
     @Override
     public void robotInit() {
-        Log.info("Running " + VERSION);
+        Log.info(ROBOT_NAME);
         instance = this;
 
         // ############################################################################
@@ -110,9 +106,11 @@ public class Robot extends IterativeRobot {
         if (DriverStation.getInstance().getStickAxisCount(0) == 6) {
             controller = new XboxController(0);
             joystick = new Joystick(1);
+            Log.info("Controller on port 0, joystick on port 1.");
         } else {
             controller = new XboxController(1);
             joystick = new Joystick(0);
+            Log.info("Controller on port 1, joystick on port 0.");
         }
 
         // ############################################################################
@@ -143,16 +141,11 @@ public class Robot extends IterativeRobot {
         midRightTalon = new CANTalon(13);
         rearLeftTalon = new CANTalon(14);
         rearRightTalon = new CANTalon(15);
-        frontRightTalon.reverseOutput(true);
-        midRightTalon.reverseOutput(true);
-        rearRightTalon.reverseOutput(true);
 
         chamberLeftTalon = new CANTalon(16);
         chamberRightTalon = new CANTalon(17);
         shooterLeftTalon = new CANTalon(18);
         shooterRightTalon = new CANTalon(19);
-        chamberRightTalon.reverseOutput(true);
-        shooterRightTalon.reverseOutput(true);
 
 //        compressor = new Compressor(0);
 //        compressor.start();
@@ -201,9 +194,8 @@ public class Robot extends IterativeRobot {
         // - Idle drive motors
         // - Idle all shooter motors
         // - Leave compressor alone
-        // TODO
         driveControl.enterSafeState();
-//        shooterControl.enterSafeState();
+        shootControl.enterSafeState();
     }
 
     /**
@@ -211,6 +203,7 @@ public class Robot extends IterativeRobot {
      * This is called at the end of any other periodic function, giving them priority.
      */
     public void commonPeriodic() {
+        shootControl.periodic();
     }
 
     @Override
