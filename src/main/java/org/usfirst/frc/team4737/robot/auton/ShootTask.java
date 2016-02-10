@@ -1,6 +1,6 @@
 package org.usfirst.frc.team4737.robot.auton;
 
-import org.usfirst.frc.team4737.robot.Robot;
+import org.usfirst.frc.team4737.robot.*;
 
 /**
  * @author Brian Semrau
@@ -8,8 +8,8 @@ import org.usfirst.frc.team4737.robot.Robot;
  */
 public class ShootTask extends AutonTask {
 
-    private static final double SPIN_TIME = 0.6;
-    private static final double SHOOT_TIME = 0.2;
+    private static double SPIN_TIME = 1.5;
+    private static double SHOOT_TIME = 0.5;
 
     private enum State {
         START, SPINNING, SHOOTING, DONE
@@ -28,9 +28,12 @@ public class ShootTask extends AutonTask {
         switch (state) {
             case START:
                 startTime = System.nanoTime() / 1000000000.0;
+                state = State.SPINNING;
             case SPINNING:
                 Robot.instance.shootControl.spinupShooter();
-                if (System.nanoTime() / 1000000000.0 - startTime > SPIN_TIME) {
+                double time = System.nanoTime() / 1000000000.0;
+                Log.debug(time - startTime);
+                if (time - startTime > SPIN_TIME) {
                     state = State.SHOOTING;
                 }
                 break;

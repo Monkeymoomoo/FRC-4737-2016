@@ -1,5 +1,7 @@
 package org.usfirst.frc.team4737.robot.auton;
 
+import org.usfirst.frc.team4737.robot.Log;
+
 /**
  * @author Brian Semrau
  * @version 1/10/2016
@@ -12,6 +14,7 @@ public abstract class AutonTask {
 
     public AutonTask(String name) {
         this.name = name;
+        Log.debug("Running task " + name);
     }
 
     public final void setOrganizer(AutonTaskOrganizer organizer) {

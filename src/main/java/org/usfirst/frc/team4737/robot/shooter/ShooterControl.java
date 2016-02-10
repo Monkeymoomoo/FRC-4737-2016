@@ -40,8 +40,8 @@ public class ShooterControl {
     public void intake() {
         // Back .75
         // Front .5
-        talons[0].set(-0.75);
-        talons[1].set(0.75);
+        talons[0].set(0.35);
+        talons[1].set(-0.35);
         talons[2].set(-0.5);
         talons[3].set(0.5);
         updatedChamber = true;
@@ -50,8 +50,8 @@ public class ShooterControl {
 
     public void dropBall() {
         // Reverse intake
-        talons[0].set(0.75);
-        talons[1].set(-0.75);
+        talons[0].set(-0.2);
+        talons[1].set(0.2);
         talons[2].set(0.5);
         talons[3].set(-0.5);
         updatedChamber = true;
@@ -67,8 +67,8 @@ public class ShooterControl {
 
     public void releaseChamber() {
         // Back 1.0
-        talons[0].set(1.0);
-        talons[1].set(-1.0);
+        talons[0].set(-1.0);
+        talons[1].set(1.0);
         updatedChamber = true;
     }
 

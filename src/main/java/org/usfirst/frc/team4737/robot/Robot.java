@@ -2,10 +2,11 @@ package org.usfirst.frc.team4737.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj.vision.*;
 import org.usfirst.frc.team4624.robot.input.XboxController;
-import org.usfirst.frc.team4737.robot.auton.AutonTaskOrganizer;
+import org.usfirst.frc.team4737.robot.auton.*;
 import org.usfirst.frc.team4737.robot.drive.DriveControl;
 import org.usfirst.frc.team4737.robot.shooter.ShooterControl;
 
@@ -74,8 +75,8 @@ public class Robot extends IterativeRobot {
     private CANTalon rearLeftTalon;
     private CANTalon rearRightTalon;
 
-    private CANTalon chamberLeftTalon;  // A
-    private CANTalon chamberRightTalon; // B
+    private CANTalon chamberLeftTalon;  // B
+    private CANTalon chamberRightTalon; // A
     private CANTalon shooterLeftTalon;  // C
     private CANTalon shooterRightTalon; // D
 
@@ -88,6 +89,7 @@ public class Robot extends IterativeRobot {
     public DriveControl driveControl;
     public ShooterControl shootControl;
     private AutonTaskOrganizer autonomousProgram;
+    private ShootTask shootTask;
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -203,6 +205,11 @@ public class Robot extends IterativeRobot {
      * This is called at the end of any other periodic function, giving them priority.
      */
     public void commonPeriodic() {
+        // Tasks
+        if (shootTask != null)
+            shootTask.periodic();
+
+        // Controllers
         driveControl.periodic();
         shootControl.periodic();
     }
@@ -258,20 +265,42 @@ public class Robot extends IterativeRobot {
         // Down: intake both rollers
         // Up: Accelerate shooters
         // RB: Shoot ball
-        if (controller.dPad.down.get()) {
+//        if (controller.dPad.down.get()) {
+//            shootControl.intake();
+//        } else if (controller.dPad.left.get()) {
+//            shootControl.dropBall();
+//        } else {
+//            if (controller.dPad.up.get()) {
+//                shootControl.spinupShooter();
+//            }
+//            if (controller.rb.get()) {
+//                shootControl.releaseChamber();
+//            }
+//        }
+        if (joystick.getRawButton(5)) {
             shootControl.intake();
-        } else if (controller.dPad.left.get()) {
+        } else if (joystick.getRawButton(6)) {
             shootControl.dropBall();
         } else {
-            if (controller.dPad.up.get()) {
-                shootControl.spinupShooter();
-            }
-            if (controller.rb.get()) {
-                shootControl.releaseChamber();
+            if (joystick.getRawButton(1)) {
+                if (shootTask == null)
+                    shootTask = new ShootTask();
+            } else if (shootTask != null) {
+                shootTask.reportFailure();
+                shootTask = null;
             }
         }
+//        } else {
+//            if (joystick.getRawButton(2)) {
+//                shootControl.spinupShooter();
+//            }
+//            if (joystick.getRawButton(1)) {
+//                shootControl.releaseChamber();
+//            }
+//        }
 
         commonPeriodic();
+
     }
 
     /**
