@@ -22,13 +22,15 @@ public class DriveControl implements PIDOutput {
 
     private boolean updated;
 
-    public DriveControl(CANTalon fl, CANTalon fr, CANTalon rl, CANTalon rr) {
+    public DriveControl(CANTalon fl, CANTalon fr, CANTalon ml, CANTalon mr, CANTalon rl, CANTalon rr) {
         // FL : 0
         // FR : 1
-        // RL : 2
-        // RR : 3
+        // ML : 2
+        // MR : 3
+        // RL : 4
+        // RR : 5
         talons = new CANTalon[]{
-                fl, fr, rl, rr
+                fl, fr, ml, mr, rl, rr
         };
     }
 
@@ -54,6 +56,8 @@ public class DriveControl implements PIDOutput {
         talons[1].set(right);
         talons[2].set(left);
         talons[3].set(right);
+        talons[4].set(left);
+        talons[5].set(right);
 
         updated = true;
     }
@@ -97,9 +101,26 @@ public class DriveControl implements PIDOutput {
             talon.set(0);
     }
 
+    public enum OutputMode {
+        DRIVING, TURNING
+    }
+
+    private OutputMode outputMode;
+
+    public void setPidOutputMode(OutputMode mode) {
+        this.outputMode = mode;
+    }
+
     @Override
     public void pidWrite(double output) {
-        tankControl(output, output, false);
+        switch (outputMode) {
+            case DRIVING:
+                tankControl(output, output, false);
+                break;
+            case TURNING:
+                tankControl(output, -output, false);
+                break;
+        }
     }
 
 }

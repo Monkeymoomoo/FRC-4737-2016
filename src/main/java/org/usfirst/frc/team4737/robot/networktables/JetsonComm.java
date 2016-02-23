@@ -25,7 +25,10 @@ public class JetsonComm implements ITableListener {
 
     private NetworkTable table;
 
-    private boolean[] goalsFound;
+    public double[] goalAngles;
+    public double[] goalDistances;
+    public double[] ballAngles;
+    public double[] ballDistances;
 
     private JetsonComm() {
         table = NetworkTable.getTable("jetson");
@@ -34,8 +37,19 @@ public class JetsonComm implements ITableListener {
     @Override
     public void valueChanged(ITable source, String key, Object value, boolean isNew) {
         switch (key) {
-            case "": // TODO
-
+            case "goalangle":
+                goalAngles = (double[]) value;
+                break;
+            case "goaldist":
+                goalDistances = (double[]) value;
+                break;
+            case "ballangles":
+                ballAngles = (double[]) value;
+                break;
+            case "balldists":
+                ballDistances = (double[]) value;
+                break;
+            default:
                 break;
         }
     }

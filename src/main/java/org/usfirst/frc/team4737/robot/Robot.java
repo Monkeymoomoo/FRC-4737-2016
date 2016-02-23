@@ -2,13 +2,13 @@ package org.usfirst.frc.team4737.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.*;
-import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj.vision.*;
 import org.usfirst.frc.team4624.robot.input.XboxController;
 import org.usfirst.frc.team4737.robot.auton.*;
 import org.usfirst.frc.team4737.robot.drive.DriveControl;
-import org.usfirst.frc.team4737.robot.shooter.ShooterControl;
+import org.usfirst.frc.team4737.robot.networktables.JetsonComm;
+import org.usfirst.frc.team4737.robot.shooter.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
@@ -56,29 +56,21 @@ public class Robot extends IterativeRobot {
     // Input devices
 
     // TODO determine if we're using an Xbox controller
-    private XboxController controller;
-    private Joystick joystick;
+    private Joystick driveStick;
+    private Joystick opStick;
 
     // Sensors
 
     public AxisCamera dscamera;
     public BuiltInAccelerometer builtInAccelerometer;
-    public ADXRS450_Gyro gyro;
     public AHRS navXSensor;
 
     // Talons
 
-    private CANTalon frontLeftTalon;
-    private CANTalon frontRightTalon;
-    private CANTalon midLeftTalon;
-    private CANTalon midRightTalon;
-    private CANTalon rearLeftTalon;
-    private CANTalon rearRightTalon;
-
-    private CANTalon chamberLeftTalon;  // B
-    private CANTalon chamberRightTalon; // A
-    private CANTalon shooterLeftTalon;  // C
-    private CANTalon shooterRightTalon; // D
+//    private CANTalon chamberLeftTalon;  // B
+//    private CANTalon chamberRightTalon; // A
+//    private CANTalon shooterLeftTalon;  // C
+//    private CANTalon shooterRightTalon; // D
 
     // Pneumatics
 
@@ -88,6 +80,7 @@ public class Robot extends IterativeRobot {
 
     public DriveControl driveControl;
     public ShooterControl shootControl;
+    public ShooterArmControl armControl;
     private AutonTaskOrganizer autonomousProgram;
     private ShootTask shootTask;
 
@@ -105,15 +98,8 @@ public class Robot extends IterativeRobot {
 
         Log.info("Initializing input..");
 
-        if (DriverStation.getInstance().getStickAxisCount(0) == 6) {
-            controller = new XboxController(0);
-            joystick = new Joystick(1);
-            Log.info("Controller on port 0, joystick on port 1.");
-        } else {
-            controller = new XboxController(1);
-            joystick = new Joystick(0);
-            Log.info("Controller on port 1, joystick on port 0.");
-        }
+        driveStick = new Joystick(0);
+        opStick = new Joystick(1);
 
         // ############################################################################
         // Initialize sensors
@@ -121,15 +107,14 @@ public class Robot extends IterativeRobot {
 
         Log.info("Initializing sensors..");
 
-        dscamera = new AxisCamera("10.47.37.11");
-        dscamera.writeResolution(AxisCamera.Resolution.k320x240);
-        dscamera.writeCompression(30);
+//        dscamera = new AxisCamera("10.47.37.11");
+//        dscamera.writeResolution(AxisCamera.Resolution.k320x240);
+//        dscamera.writeCompression(30);
 
         builtInAccelerometer = new BuiltInAccelerometer();
 
-        gyro = new ADXRS450_Gyro();
-
         navXSensor = new AHRS(SPI.Port.kMXP);
+        navXSensor.startLiveWindowMode();
 
         // ############################################################################
         // Initialize motors/pneumatics
@@ -137,17 +122,19 @@ public class Robot extends IterativeRobot {
 
         Log.info("Initializing actuators..");
 
-        frontLeftTalon = new CANTalon(10);
-        frontRightTalon = new CANTalon(11);
-        midLeftTalon = new CANTalon(12);
-        midRightTalon = new CANTalon(13);
-        rearLeftTalon = new CANTalon(14);
-        rearRightTalon = new CANTalon(15);
+        CANTalon frontLeftTalon = new CANTalon(10);
+        CANTalon frontRightTalon = new CANTalon(11);
+        CANTalon midLeftTalon = new CANTalon(12);
+        CANTalon midRightTalon = new CANTalon(13);
+        CANTalon rearLeftTalon = new CANTalon(14);
+        CANTalon rearRightTalon = new CANTalon(15);
 
-        chamberLeftTalon = new CANTalon(16);
-        chamberRightTalon = new CANTalon(17);
-        shooterLeftTalon = new CANTalon(18);
-        shooterRightTalon = new CANTalon(19);
+//        CANTalon chamberLeftTalon = new CANTalon(16);
+//        CANTalon chamberRightTalon = new CANTalon(17);
+//        CANTalon shooterLeftTalon = new CANTalon(18);
+//        CANTalon shooterRightTalon = new CANTalon(19);
+//
+//        CANTalon armTalon = new CANTalon(20);
 
 //        compressor = new Compressor(0);
 //        compressor.start();
@@ -160,19 +147,23 @@ public class Robot extends IterativeRobot {
 
         driveControl = new DriveControl(
                 frontLeftTalon, frontRightTalon,
+                midLeftTalon, midRightTalon,
                 rearLeftTalon, rearRightTalon);
 
-        shootControl = new ShooterControl(
-                chamberLeftTalon, chamberRightTalon,
-                shooterLeftTalon, shooterRightTalon);
-
-        //) autonomousController is initialized in autonomousInit()
+//        shootControl = new ShooterControl(
+//                chamberLeftTalon, chamberRightTalon,
+//                shooterLeftTalon, shooterRightTalon);
+//
+//        armControl = new ShooterArmControl(armTalon);
 
         // ############################################################################
         // Initialize SmartDashboard items
         // ############################################################################
 
         Log.info("Creating SmartDashboard..");
+
+        // Init JetsonComm here, because it's related to NetworkTables
+        JetsonComm.init();
 
         autonomousChooser = new SendableChooser();
         Obstacle[] strategies = Obstacle.values();
@@ -197,7 +188,7 @@ public class Robot extends IterativeRobot {
         // - Idle all shooter motors
         // - Leave compressor alone
         driveControl.enterSafeState();
-        shootControl.enterSafeState();
+//        shootControl.enterSafeState();
     }
 
     /**
@@ -206,46 +197,47 @@ public class Robot extends IterativeRobot {
      */
     public void commonPeriodic() {
         // Tasks
-        if (shootTask != null)
-            shootTask.periodic();
+//        if (shootTask != null)
+//            shootTask.periodic();
 
         // Controllers
         driveControl.periodic();
-        shootControl.periodic();
+//        shootControl.periodic();
+//        armControl.periodic();
     }
 
     @Override
     public void autonomousInit() {
         // TODO rework how auton strategies are done
-        Obstacle strategy = (Obstacle) autonomousChooser.getSelected();
-        switch (strategy) {
-            case NONE:
-                autonomousProgram = new AutonTaskOrganizer();
-                break;
-            case PORTCULLIS:
-                break;
-            case CHEVAL_DE_FRISE:
-                break;
-            case MOAT:
-                break;
-            case RAMPARTS:
-                break;
-            case DRAWBRIDGE:
-                break;
-            case SALLY_PORT:
-                break;
-            case ROCK_WALL:
-                break;
-            case ROUGH_TERRAIN:
-                break;
-            case LOW_BAR:
-                break;
-        }
+//        Obstacle strategy = (Obstacle) autonomousChooser.getSelected();
+//        switch (strategy) {
+//            case NONE:
+//                autonomousProgram = new AutonTaskOrganizer();
+//                break;
+//            case PORTCULLIS:
+//                break;
+//            case CHEVAL_DE_FRISE:
+//                break;
+//            case MOAT:
+//                break;
+//            case RAMPARTS:
+//                break;
+//            case DRAWBRIDGE:
+//                break;
+//            case SALLY_PORT:
+//                break;
+//            case ROCK_WALL:
+//                break;
+//            case ROUGH_TERRAIN:
+//                break;
+//            case LOW_BAR:
+//                break;
+//        }
     }
 
     @Override
     public void autonomousPeriodic() {
-        autonomousProgram.periodic();
+//        autonomousProgram.periodic();
 
         commonPeriodic();
     }
@@ -256,51 +248,37 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void teleopPeriodic() {
-        // Arcade drive using Xbox controller
-        // Steer w/ L thumbstick
-        // Throttle with triggers
-        driveControl.arcadeControl(controller.leftStick.getX(), controller.rt.getY() - controller.lt.getY(), true);
+        // Arcade drive
 
-        // Shooter control TODO utilize an autonomous task
-        // Down: intake both rollers
-        // Up: Accelerate shooters
-        // RB: Shoot ball
-//        if (controller.dPad.down.get()) {
+        double deadzone = 0.05;
+        double xAxis = driveStick.getRawAxis(0);
+        double yAxis = driveStick.getRawAxis(1);
+        if (Math.abs(xAxis) < deadzone) xAxis = 0;
+        if (Math.abs(yAxis) < deadzone) yAxis = 0;
+        driveControl.arcadeControl(xAxis, yAxis, true);
+//
+//        // Shooter control
+//
+//        if (opStick.getRawButton(5)) {
 //            shootControl.intake();
-//        } else if (controller.dPad.left.get()) {
+//        } else if (opStick.getRawButton(6)) {
 //            shootControl.dropBall();
 //        } else {
-//            if (controller.dPad.up.get()) {
-//                shootControl.spinupShooter();
-//            }
-//            if (controller.rb.get()) {
-//                shootControl.releaseChamber();
-//            }
-//        }
-        if (joystick.getRawButton(5)) {
-            shootControl.intake();
-        } else if (joystick.getRawButton(6)) {
-            shootControl.dropBall();
-        } else {
-            if (joystick.getRawButton(1)) {
-                if (shootTask == null)
-                    shootTask = new ShootTask();
-            } else if (shootTask != null) {
-                shootTask.reportFailure();
-                shootTask = null;
-            }
-        }
-//        } else {
-//            if (joystick.getRawButton(2)) {
-//                shootControl.spinupShooter();
-//            }
-//            if (joystick.getRawButton(1)) {
-//                shootControl.releaseChamber();
+//            if (opStick.getRawButton(1)) {
+//                if (shootTask == null)
+//                    shootTask = new ShootTask();
+//            } else if (shootTask != null) {
+//                shootTask.reportFailure();
+//                shootTask = null;
 //            }
 //        }
+
+//        armControl.setTarget(45);
+//        armControl.enable();
+//        System.out.println(armControl.talon.getAnalogInPosition());
+//        System.out.println(armControl.pidController.get());
 
         commonPeriodic();
-
     }
 
     /**
@@ -308,6 +286,7 @@ public class Robot extends IterativeRobot {
      */
     @Override
     public void disabledInit() {
+//        armControl.disable();
     }
 
     @Override

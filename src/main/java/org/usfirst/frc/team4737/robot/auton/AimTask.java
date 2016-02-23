@@ -8,6 +8,8 @@ package org.usfirst.frc.team4737.robot.auton;
  */
 public class AimTask extends AutonTask {
 
+    private static final double ANGLE_ERR_BOUNDS = 0.1;
+
     public AimTask() {
         super("Aim at Goal");
     }
