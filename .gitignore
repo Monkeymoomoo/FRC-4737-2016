@@ -5,3 +5,6 @@ build/
 .gradle/2.2.1/taskArtifacts/fileHashes.bin
 .gradle/2.2.1/taskArtifacts/cache.properties.lock
 GradleRIO.iws
+dist/FRCUserProgram.jar
+sysProps.xml
+bin/
